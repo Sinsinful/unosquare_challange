@@ -120,7 +120,7 @@ def make_guess(game_id):
         "incorrect_guesses": remove_letters(game["guessed_letters"], game["word"]),
         "remaining_attempts": game["attempts"],
         "status": game["status"],
-        "unmasked": game["word"],
+        "word": game["word"]
     })
 
 
@@ -129,7 +129,6 @@ def make_guess(game_id):
         "remaining_attempts": game["attempts"],
         "status": "In Progress",
         "word": masked_word,
-        "unmasked": game["word"],
     })
 
 # Added delete game function

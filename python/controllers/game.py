@@ -130,3 +130,4 @@ def make_guess(game_id):
         "word": masked_word,
         "unmasked": game["word"],
     })
+

@@ -29,6 +29,7 @@ def is_valid_guess(guess, game):
         return False
     return True
 
+#helper function to take the correct letters out of guessed letters for the return for incorrect letters
 def remove_letters(a, b):
     c = []
     for letter in a:
@@ -36,13 +37,14 @@ def remove_letters(a, b):
             c.append(letter)
     return c
 
-
+#updated with a status field to help with retreival at game won/lost
 @mod.route('/', methods=['POST'])
 def start_game():
     game_id = str(uuid.uuid4())
     word = generate_word()
     games[game_id] = {
         "word": word,
+        "status": "In progress",
         "guessed_letters": [],
         "attempts": 6
     }
@@ -55,7 +57,7 @@ def get_game_state(game_id):
         abort(404)
     masked_word = mask_word(game["word"], game["guessed_letters"])
     return jsonify({
-        "incorrect_guesses": game["guessed_letters"],
+        "incorrect_guesses": remove_letters(game["guessed_letters"], game["word"]),
         "remaining_attempts": game["attempts"],
         "status": game["status"],
         "word": masked_word,
@@ -81,7 +83,7 @@ def make_guess(game_id):
         game["status"] = "Lost"
         return jsonify({
         "game_over": "Game over no further guesses can be made",
-        "incorrect_guesses": game["guessed_letters"],
+        "incorrect_guesses": remove_letters(game["guessed_letters"], game["word"]),
         "remaining_attempts": game["attempts"],
         "status": game["status"],
         "game word was": game["word"],
@@ -97,7 +99,7 @@ def make_guess(game_id):
     if game["attempts"] < 1:
         game["status"] = "Lost"
         return jsonify({
-        "incorrect_guesses": game["guessed_letters"],
+        "incorrect_guesses": remove_letters(game["guessed_letters"], game["word"]),
         "remaining_attempts": game["attempts"],
         "status": game["status"],
         "game word was": game["word"],
@@ -122,12 +124,21 @@ def make_guess(game_id):
     })
 
 
-
     return jsonify({
         "incorrect_guesses": remove_letters(game["guessed_letters"], game["word"]),
         "remaining_attempts": game["attempts"],
         "status": "In Progress",
         "word": masked_word,
         "unmasked": game["word"],
+    })
+
+# Added delete game function
+@mod.route('/<string:game_id>', methods=['DELETE'])
+def delete(game_id):
+    games.pop(game_id)
+
+    return jsonify({
+        "deleted game": game_id,
+        
     })
 
